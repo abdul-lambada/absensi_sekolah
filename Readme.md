@@ -1,6 +1,6 @@
 # Absensi Sekolah
 
-![PHP Logo](https://www.logotypes101.com/logos/203/272663FA02DE2DAA2BBAE2FC39F14783/php.png)
+<img src="https://www.logotypes101.com/logos/203/272663FA02DE2DAA2BBAE2FC39F14783/php.png" alt="PHP Logo" width="200">
 
 Proyek ini adalah sistem absensi sekolah yang dibangun menggunakan PHP dan MySQL. Sistem ini memungkinkan sekolah untuk melacak kehadiran siswa secara efisien.
 
@@ -22,7 +22,7 @@ Proyek ini adalah sistem absensi sekolah yang dibangun menggunakan PHP dan MySQL
 
 1. Clone repositori ini ke direktori htdocs XAMPP Anda:
     ```bash
-    git clone https://github.com/abdul-lambada/absensi_sekolah.git
+    git clone https://github.com/username/absensi_sekolah.git
     ```
 
 2. Buat database baru di MySQL dan impor file `database.sql` yang ada di folder `database`:
@@ -68,4 +68,4 @@ Jika Anda ingin berkontribusi pada proyek ini, silakan fork repositori ini dan b
 
 ## Lisensi
 
-Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+Proyek ini dilisensikan di bawah [MIT License](https://github.com/abdul-lambada/absensi_sekolah/blob/main/LICENSE).
