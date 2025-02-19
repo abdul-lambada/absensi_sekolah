@@ -1,6 +1,6 @@
 # Absensi Sekolah
 
-![PHP Logo](https://www.php.net/images/logos/php-logo.svg)
+[PHP Logo](https://www.php.net/images/logos/php-logo.svg)
 
 Proyek ini adalah sistem absensi sekolah yang dibangun menggunakan PHP dan MySQL. Sistem ini memungkinkan sekolah untuk melacak kehadiran siswa secara efisien.
 
