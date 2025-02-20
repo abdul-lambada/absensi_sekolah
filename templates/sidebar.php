@@ -1,7 +1,8 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
         <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-school"></i>
+            <i class="fas fa-laugh-wink"></i> <!-- Updated icon per SB Admin2 -->
         </div>
         <div class="sidebar-brand-text mx-3">Absensi Sekolah</div>
     </a>
@@ -11,72 +12,108 @@
     <li class="nav-item <?php echo $active_page === 'dashboard' ? 'active' : ''; ?>">
         <a class="nav-link" href="index.php">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Dashboard</span></a>
+            <span>Dashboard</span>
+        </a>
     </li>
+    <hr class="sidebar-divider">
 
-    <!-- Menu untuk Admin -->
     <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+        <div class="sidebar-heading">
+            Admin Menu
+        </div>
         <li class="nav-item <?php echo $active_page === 'list_jurusan' ? 'active' : ''; ?>">
             <a class="nav-link" href="list_jurusan.php">
-                <i class="fas fa-fw fa-users"></i>
-                <span>Data Jurusan</span></a>
+                <i class="fas fa-fw fa-building"></i> <!-- Changed icon for jurusan -->
+                <span>Data Jurusan</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'list_kelas' ? 'active' : ''; ?>">
             <a class="nav-link" href="list_kelas.php">
-                <i class="fas fa-fw fa-users"></i>
-                <span>Data Kelas</span></a>
+                <i class="fas fa-fw fa-door-open"></i> <!-- Changed icon for kelas -->
+                <span>Data Kelas</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'list_guru' ? 'active' : ''; ?>">
             <a class="nav-link" href="list_guru.php">
-                <i class="fas fa-fw fa-users"></i>
-                <span>List Guru</span></a>
+                <i class="fas fa-fw fa-chalkboard-teacher"></i> <!-- Changed icon for guru -->
+                <span>List Guru</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'list_siswa' ? 'active' : ''; ?>">
             <a class="nav-link" href="list_siswa.php">
                 <i class="fas fa-fw fa-user-graduate"></i>
-                <span>List Siswa</span></a>
+                <span>List Siswa</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'laporan_guru' ? 'active' : ''; ?>">
             <a class="nav-link" href="laporan_guru.php">
-                <i class="fas fa-fw fa-chart-bar"></i>
-                <span>Laporan Absensi Guru</span></a>
+                <i class="fas fa-fw fa-user-check"></i> <!-- Changed icon for laporan absensi guru -->
+                <span>Laporan Absensi Guru</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'laporan_siswa' ? 'active' : ''; ?>">
             <a class="nav-link" href="laporan_siswa.php">
-                <i class="fas fa-fw fa-chart-bar"></i>
-                <span>Laporan Absensi Siswa</span></a>
+                <i class="fas fa-fw fa-file-alt"></i> <!-- Changed icon for laporan absensi siswa -->
+                <span>Laporan Absensi Siswa</span>
+            </a>
         </li>
+        <hr class="sidebar-divider">
     <?php endif; ?>
 
-    <!-- Menu untuk Guru -->
     <?php if ($_SESSION['user']['role'] === 'guru'): ?>
+        <div class="sidebar-heading">
+            Guru Menu
+        </div>
         <li class="nav-item <?php echo $active_page === 'absensi_siswa' ? 'active' : ''; ?>">
             <a class="nav-link" href="absensi_siswa.php">
                 <i class="fas fa-fw fa-clipboard-list"></i>
-                <span>Absensi Siswa</span></a>
+                <span>Absensi Siswa</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'absensi_guru' ? 'active' : ''; ?>">
             <a class="nav-link" href="absensi_guru.php">
-                <i class="fas fa-fw fa-calendar-check"></i>
-                <span>Absensi Guru</span></a>
+                <i class="fas fa-fw fa-user-clock"></i> <!-- Changed icon for absensi guru -->
+                <span>Absensi Guru</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'laporan_siswa' ? 'active' : ''; ?>">
             <a class="nav-link" href="laporan.php">
-                <i class="fas fa-fw fa-chart-bar"></i>
-                <span>Laporan Absensi Siswa</span></a>
+                <i class="fas fa-fw fa-file-alt"></i> <!-- Changed icon for laporan absensi siswa -->
+                <span>Laporan Absensi Siswa</span>
+            </a>
         </li>
         <li class="nav-item <?php echo $active_page === 'laporan_guru' ? 'active' : ''; ?>">
             <a class="nav-link" href="laporan_guru.php">
-                <i class="fas fa-fw fa-chart-bar"></i>
-                <span>Laporan Absensi Guru</span></a>
+                <i class="fas fa-fw fa-user-check"></i>
+                <span>Laporan Absensi Guru</span>
+            </a>
         </li>
+        <hr class="sidebar-divider">
     <?php endif; ?>
-    <!-- Menu Logout -->
-    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Logout -->
     <li class="nav-item">
         <a class="nav-link" href="../auth/logout.php">
             <i class="fas fa-fw fa-sign-out-alt"></i>
-            <span>Logout</span></a>
+            <span>Logout</span>
+        </a>
     </li>
+    
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle" type="button"></button>
+    </div>
 </ul>
 <!-- End of Sidebar -->
+
+<!-- Added JS for sidebar toggle -->
+<!-- <script>
+// Wait until DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+    var sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('toggled');
+        });
+    }
+});
+</script> -->
