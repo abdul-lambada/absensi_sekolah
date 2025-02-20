@@ -43,12 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                     }
 
                     // Ambil data dari kolom Excel
-                    $nama_siswa = trim($row[0]);
-                    $nisn = trim($row[1]);
+                    $nisn = trim($row[0]);
+                    $nama_siswa = trim($row[1]);
                     $jenis_kelamin = trim($row[2]);
                     $tanggal_lahir = trim($row[3]);
                     $alamat = trim($row[4]);
                     $id_kelas = trim($row[5]);
+                    $nis = trim($row[6]);
+
 
                     // Validasi data
                     if (!empty($nama_siswa) && !empty($nisn) && !empty($jenis_kelamin) && !empty($tanggal_lahir) && !empty($id_kelas)) {
@@ -58,13 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                         }
 
                         // Simpan data ke database
-                        $stmt = $conn->prepare("INSERT INTO Siswa (nama_siswa, nisn, jenis_kelamin, tanggal_lahir, alamat, id_kelas) VALUES (:nama_siswa, :nisn, :jenis_kelamin, :tanggal_lahir, :alamat, :id_kelas)");
-                        $stmt->bindParam(':nama_siswa', $nama_siswa);
+                        $stmt = $conn->prepare("INSERT INTO Siswa (nisn, nama_siswa, jenis_kelamin, tanggal_lahir, alamat, id_kelas, nis) VALUES (:nisn, :nama_siswa, :jenis_kelamin, :tanggal_lahir, :alamat, :id_kelas, :nis)");
                         $stmt->bindParam(':nisn', $nisn);
+                        $stmt->bindParam(':nama_siswa', $nama_siswa);
                         $stmt->bindParam(':jenis_kelamin', $jenis_kelamin);
                         $stmt->bindParam(':tanggal_lahir', $tanggal_lahir);
                         $stmt->bindParam(':alamat', $alamat);
                         $stmt->bindParam(':id_kelas', $id_kelas);
+                        $stmt->bindParam(':nis', $nis);
+
 
                         if (!$stmt->execute()) {
                             throw new \Exception("Gagal menyimpan data siswa di baris ke-" . ($index + 1));
@@ -123,8 +127,8 @@ $siswa_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Nama Siswa</th>
                                         <th>NISN</th>
+                                        <th>Nama Siswa</th>
                                         <th>Jenis Kelamin</th>
                                         <th>Tanggal Lahir</th>
                                         <th>Alamat</th>
@@ -136,8 +140,8 @@ $siswa_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <?php if (!empty($siswa_list)): ?>
                                         <?php foreach ($siswa_list as $siswa): ?>
                                             <tr>
-                                                <td><?php echo htmlspecialchars($siswa['nama_siswa']); ?></td>
                                                 <td><?php echo htmlspecialchars($siswa['nisn']); ?></td>
+                                                <td><?php echo htmlspecialchars($siswa['nama_siswa']); ?></td>
                                                 <td><?php echo htmlspecialchars($siswa['jenis_kelamin']); ?></td>
                                                 <td><?php echo htmlspecialchars($siswa['tanggal_lahir']); ?></td>
                                                 <td><?php echo htmlspecialchars($siswa['alamat']); ?></td>
