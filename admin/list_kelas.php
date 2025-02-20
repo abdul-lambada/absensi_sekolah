@@ -42,8 +42,8 @@ $kelas_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <td><?php echo $kelas['nama_kelas']; ?></td>
                                                 <td><?php echo $kelas['nama_jurusan']; ?></td>
                                                 <td>
-                                                    <a href="edit_kelas.php?id=<?php echo $kelas['id_k$kelas']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                                    <a href="hapus_kelas.php?id=<?php echo $kelas['id_k$kelas']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"><i class="fas fa-trash"></i></a>
+                                                    <a href="edit_kelas.php?id=<?php echo $kelas['id_kelas']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                                                    <a href="hapus_kelas.php?id=<?php echo $kelas['id_kelas']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
