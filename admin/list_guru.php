@@ -25,9 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                 $worksheet = $spreadsheet->getActiveSheet();
                 $rows = $worksheet->toArray();
 
-                // Loop melalui baris data (mulai dari baris kedua untuk mengabaikan header)
+                // Nonaktifkan foreign key checks
+                $conn->exec("SET FOREIGN_KEY_CHECKS = 0;");
+
+                // Mulai transaksi
+                $conn->beginTransaction();
+
+                // Hapus semua data guru sebelum import
+                $conn->exec("TRUNCATE TABLE Guru");
+
+                // Loop melalui baris data
                 $header_skipped = false;
-                foreach ($rows as $row) {
+                foreach ($rows as $index => $row) {
                     if (!$header_skipped) {
                         $header_skipped = true;
                         continue; // Lewati baris header
@@ -42,6 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
 
                     // Validasi data
                     if (!empty($nama_guru) && !empty($nip)) {
+                        // Jika alamat kosong, isi dengan string kosong
+                        if (empty($alamat)) {
+                            $alamat = "";
+                        }
+
                         // Simpan data ke database
                         $stmt = $conn->prepare("INSERT INTO Guru (nama_guru, nip, jenis_kelamin, tanggal_lahir, alamat) VALUES (:nama_guru, :nip, :jenis_kelamin, :tanggal_lahir, :alamat)");
                         $stmt->bindParam(':nama_guru', $nama_guru);
@@ -51,16 +65,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                         $stmt->bindParam(':alamat', $alamat);
 
                         if (!$stmt->execute()) {
-                            echo "<script>alert('Gagal menyimpan data guru: " . implode(", ", $stmt->errorInfo()) . "');</script>";
+                            throw new \Exception("Gagal menyimpan data guru di baris ke-" . ($index + 1));
                         }
                     } else {
-                        echo "<script>alert('Data tidak lengkap di salah satu baris. Pastikan semua kolom wajib diisi.');</script>";
+                        throw new \Exception("Data tidak lengkap di baris ke-" . ($index + 1));
                     }
                 }
 
-                echo "<script>alert('Data guru berhasil diimpor dari Excel.');</script>";
+                // Commit transaksi jika sukses
+                $conn->commit();
+                echo "<script>alert('Semua data guru berhasil disimpan.');</script>";
             } catch (\Exception $e) {
-                echo "<script>alert('Error saat membaca file Excel: " . htmlspecialchars($e->getMessage()) . "');</script>";
+                // Rollback transaksi jika terjadi error
+                $conn->rollBack();
+                echo "<script>alert('Error saat menyimpan data: " . htmlspecialchars($e->getMessage()) . "');</script>";
+            } finally {
+                // Aktifkan kembali foreign key checks
+                $conn->exec("SET FOREIGN_KEY_CHECKS = 1;");
             }
         }
     } else {

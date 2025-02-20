@@ -1,8 +1,8 @@
 {
     "require": {
-          "phpoffice/phpspreadsheet": "^1.18.0"
+        "phpoffice/phpspreadsheet": "^1.8"
     },
     "config": {
-    "platform-check": false
-}
+        "platform-check": false
+    }
 }

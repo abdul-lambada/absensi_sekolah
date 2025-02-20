@@ -12,6 +12,6 @@ $stmt = $conn->prepare("DELETE FROM Guru WHERE id_guru = :id_guru");
 $stmt->bindParam(':id_guru', $id_guru);
 $stmt->execute();
 
-header("Location: index.php");
+header("Location: list_guru.php");
 exit;
 ?>
