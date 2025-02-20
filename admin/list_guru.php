@@ -48,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                     $jenis_kelamin = trim($row[2]);
                     $tanggal_lahir = trim($row[3]);
                     $alamat = trim($row[4]);
+                    $password = trim($row[5]);
+                    $role = trim($row[6]);
 
                     // Validasi data
                     if (!empty($nama_guru) && !empty($nip)) {
@@ -57,12 +59,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['import_excel'])) {
                         }
 
                         // Simpan data ke database
-                        $stmt = $conn->prepare("INSERT INTO Guru (nama_guru, nip, jenis_kelamin, tanggal_lahir, alamat) VALUES (:nama_guru, :nip, :jenis_kelamin, :tanggal_lahir, :alamat)");
+                        $stmt = $conn->prepare("INSERT INTO Guru (nama_guru, nip, jenis_kelamin, tanggal_lahir, alamat, password, role) VALUES (:nama_guru, :nip, :jenis_kelamin, :tanggal_lahir, :alamat, :password, :role)");
                         $stmt->bindParam(':nama_guru', $nama_guru);
                         $stmt->bindParam(':nip', $nip);
                         $stmt->bindParam(':jenis_kelamin', $jenis_kelamin);
                         $stmt->bindParam(':tanggal_lahir', $tanggal_lahir);
                         $stmt->bindParam(':alamat', $alamat);
+                        $stmt->bindParam(':password', $password);
+                        $stmt->bindParam(':role', $role);
+
 
                         if (!$stmt->execute()) {
                             throw new \Exception("Gagal menyimpan data guru di baris ke-" . ($index + 1));
