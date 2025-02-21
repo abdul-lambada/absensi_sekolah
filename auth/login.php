@@ -2,6 +2,8 @@
 session_start();
 include '../includes/db.php';
 
+$error = ""; // Initialize error variable
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nip = $_POST['nip'];
     $password = $_POST['password'];
@@ -28,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         exit;
     } else {
-        echo "NIP atau password salah.";
+        $error = "NIP atau password salah."; // Set error message
     }
 }
 ?>
@@ -52,6 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <h1 class="h4 text-gray-900"><strong>Login Piket Guru</strong></h1>
                                 <p class="text-gray-900"><b>SMK AL-AMIIN</b></p>
                             </div>
+                            <?php if (!empty($error)): ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <?php echo $error; ?>
+                                </div>
+                            <?php endif; ?>
                             <form method="POST" action="">
                                 <div class="form-group">
                                     <input type="text" name="nip" class="form-control" placeholder="NIP" required>

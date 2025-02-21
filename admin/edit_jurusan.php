@@ -18,20 +18,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nama_jurusan = $_POST['nama_jurusan'];
 
     // Update data di database
-    $stmt = $conn->prepare("UPDATE Jurusan SET nama_jurusan = :nama_jurusan WHERE id_jurusan = :id_jurusan");
-    $stmt->bindParam(':nama_jurusan', $nama_jurusan);
-    $stmt->bindParam(':id_jurusan', $id_jurusan);
+    if (!empty($nama_jurusan)) {
+        try {
+            $stmt = $conn->prepare("UPDATE Jurusan SET nama_jurusan = :nama_jurusan WHERE id_jurusan = :id_jurusan");
+            $stmt->bindParam(':nama_jurusan', $nama_jurusan);
+            $stmt->bindParam(':id_jurusan', $id_jurusan);
+            $stmt->execute();
 
-    if ($stmt->execute()) {
-        header("Location: list_jurusan.php");
-        exit;
+            // Redirect ke halaman list jurusan dengan status success
+            header("Location: list_jurusan.php?status=edit_success");
+            exit();
+        } catch (\PDOException $e) {
+            // Redirect ke halaman list jurusan dengan status error
+            header("Location: list_jurusan.php?status=error");
+            exit();
+        }
     } else {
-        echo "Gagal memperbarui data jurusan.";
+        echo "<script>alert('Nama jurusan tidak boleh kosong.');</script>";
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -40,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
+
 <body id="page-top">
     <?php include '../templates/header.php'; ?>
     <?php include '../templates/sidebar.php'; ?>
@@ -70,4 +80,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     <?php include '../templates/footer.php'; ?>
 </body>
+
 </html>

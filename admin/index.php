@@ -259,7 +259,7 @@ try {
                                                 echo "<tr><td colspan='4' class='text-center'>Tidak ada data absensi.</td></tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='4' class='text-center'>Kolom 'status' tidak ditemukan di tabel Absensi_siswa.</td></tr>";
+                                            echo "<tr><td colspan='4' class='text-center'>Kolom 'status_kehadiran' tidak ditemukan di tabel Absensi_siswa.</td></tr>";
                                         }
                                     } catch (\PDOException $e) {
                                         echo "<tr><td colspan='4' class='text-center'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";

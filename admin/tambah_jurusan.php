@@ -16,14 +16,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tanggal_lahir = $_POST['tanggal_lahir'];
     $alamat = $_POST['alamat'];
 
-    // Simpan data ke database
-    $stmt = $conn->prepare("INSERT INTO Jurusan (nama_jurusan) VALUES (:nama_jurusan)");
-    $stmt->bindParam(':nama_jurusan', $nama_jurusan);
-    if ($stmt->execute()) {
-        header("Location: list_jurusan.php");
-        exit;
+    if (!empty($nama_jurusan)) {
+        try {
+            $stmt = $conn->prepare("INSERT INTO Jurusan (nama_jurusan) VALUES (:nama_jurusan)");
+            $stmt->bindParam(':nama_jurusan', $nama_jurusan);
+            $stmt->execute();
+
+            // Redirect ke halaman list jurusan dengan status success
+            header("Location: list_jurusan.php?status=add_success");
+            exit();
+        } catch (\PDOException $e) {
+            // Redirect ke halaman list jurusan dengan status error
+            header("Location: list_jurusan.php?status=error");
+            exit();
+        }
     } else {
-        echo "Gagal menambahkan data jurusan.";
+        echo "<script>alert('Nama jurusan tidak boleh kosong.');</script>";
     }
 }
 ?>
