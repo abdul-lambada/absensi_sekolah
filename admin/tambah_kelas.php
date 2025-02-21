@@ -11,23 +11,48 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 $stmt_jurusan = $conn->query("SELECT * FROM Jurusan");
 $jurusan_list = $stmt_jurusan->fetchAll(PDO::FETCH_ASSOC);
 
+// Proses tambah data kelas
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Ambil data dari form
-    $nama_kelas = $_POST['nama_kelas'];
-    $id_jurusan = $_POST['id_jurusan'];
+    $nama_kelas = trim($_POST['nama_kelas']);
+    $id_jurusan = trim($_POST['id_jurusan']);
 
-    // Simpan data ke database
-    $stmt = $conn->prepare("INSERT INTO Kelas (nama_kelas, id_jurusan) VALUES (:nama_kelas, :id_jurusan)");
-    $stmt->bindParam(':nama_kelas', $nama_kelas);
-    $stmt->bindParam(':id_jurusan', $id_jurusan);
+    if (!empty($nama_kelas) && !empty($id_jurusan)) {
+        try {
+            $stmt = $conn->prepare("INSERT INTO Kelas (nama_kelas, id_jurusan) VALUES (:nama_kelas, :id_jurusan)");
+            $stmt->bindParam(':nama_kelas', $nama_kelas);
+            $stmt->bindParam(':id_jurusan', $id_jurusan);
+            $stmt->execute();
 
-    if ($stmt->execute()) {
-        header("Location: list_kelas.php");
-        exit;
+            // Redirect ke halaman list kelas dengan status success
+            header("Location: list_kelas.php?status=add_success");
+            exit();
+        } catch (\PDOException $e) {
+            // Redirect ke halaman list kelas dengan status error
+            header("Location: list_kelas.php?status=error");
+            exit();
+        }
     } else {
-        echo "Gagal menambahkan data kelas.";
+        echo "<script>alert('Nama kelas dan jurusan tidak boleh kosong.');</script>";
     }
 }
+
+// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+//     // Ambil data dari form
+//     $nama_kelas = $_POST['nama_kelas'];
+//     $id_jurusan = $_POST['id_jurusan'];
+
+//     // Simpan data ke database
+//     $stmt = $conn->prepare("INSERT INTO Kelas (nama_kelas, id_jurusan) VALUES (:nama_kelas, :id_jurusan)");
+//     $stmt->bindParam(':nama_kelas', $nama_kelas);
+//     $stmt->bindParam(':id_jurusan', $id_jurusan);
+
+//     if ($stmt->execute()) {
+//         header("Location: list_kelas.php");
+//         exit;
+//     } else {
+//         echo "Gagal menambahkan data kelas.";
+//     }
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en">

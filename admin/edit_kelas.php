@@ -17,13 +17,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nama_kelas = $_POST['nama_kelas'];
     $id_jurusan = $_POST['id_jurusan'];
 
-    $stmt = $conn->prepare("UPDATE Kelas SET  nama_kelas = :nama_kelas, id_jurusan = :id_jurusan WHERE id_kelas = :id_kelas");
-    $stmt->bindParam(':nama_kelas', $nama_kelas);
-    $stmt->bindParam(':id_jurusan', $id_jurusan);
-    $stmt->bindParam(':id_kelas', $id_kelas);
-    $stmt->execute();
+    if (!empty($nama_kelas) && !empty($id_jurusan)) {
+        try {
+            $stmt = $conn->prepare("UPDATE Kelas SET nama_kelas = :nama_kelas, id_jurusan = :id_jurusan WHERE id_kelas = :id_kelas");
+            $stmt->bindParam(':nama_kelas', $nama_kelas);
+            $stmt->bindParam(':id_jurusan', $id_jurusan);
+            $stmt->bindParam(':id_kelas', $id_kelas);
+            $stmt->execute();
 
-    header("Location: list_kelas.php");
+            // Redirect ke halaman list kelas dengan status success
+            header("Location: list_kelas.php?status=edit_success");
+            exit();
+        } catch (\PDOException $e) {
+            // Redirect ke halaman list kelas dengan status error
+            header("Location: list_kelas.php?status=error");
+            exit();
+        }
+    } else {
+        echo "<script>alert('Nama kelas dan jurusan tidak boleh kosong.');</script>";
+    }
     exit;
 }
 
@@ -33,6 +45,7 @@ $jurusan_list = $stmt_jurusan->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -41,6 +54,7 @@ $jurusan_list = $stmt_jurusan->fetchAll(PDO::FETCH_ASSOC);
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
+
 <body id="page-top">
     <?php include '../templates/header.php'; ?>
     <?php include '../templates/sidebar.php'; ?>
@@ -79,4 +93,5 @@ $jurusan_list = $stmt_jurusan->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <?php include '../templates/footer.php'; ?>
 </body>
+
 </html>
