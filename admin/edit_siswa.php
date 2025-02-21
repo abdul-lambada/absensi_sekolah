@@ -31,8 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bindParam(':id_siswa', $id_siswa);
     $stmt->execute();
 
-    header("Location: list_siswa.php");
-    exit;
+    if ($stmt->execute()) {
+        // Redirect ke halaman list guru dengan status success
+        header("Location: list_siswa.php?status=edit_success");
+        exit();
+    } else {
+        // Redirect ke halaman list guru dengan status error
+        header("Location: list_siswa.php?status=edit_success");
+        exit();
+    }
 }
 
 // Ambil daftar kelas untuk dropdown
@@ -41,6 +48,7 @@ $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -49,6 +57,7 @@ $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
+
 <body id="page-top">
     <?php include '../templates/header.php'; ?>
     <?php include '../templates/sidebar.php'; ?>
@@ -98,4 +107,5 @@ $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <?php include '../templates/footer.php'; ?>
 </body>
+
 </html>

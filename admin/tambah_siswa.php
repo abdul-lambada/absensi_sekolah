@@ -30,10 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bindParam(':id_kelas', $id_kelas);
 
     if ($stmt->execute()) {
-        header("Location: list_siswa.php");
-        exit;
+         // Redirect ke halaman list siswa dengan status success
+         header("Location: list_siswa.php?status=add_success");
+         exit();
     } else {
-        echo "Gagal menambahkan data siswa.";
+        // echo "Gagal menambahkan data siswa."; 
+        // Redirect ke halaman list siswa dengan status error
+        header("Location: list_siswa.php?status=error");
+        exit();
     }
 }
 ?>
