@@ -33,10 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bindParam(':id_guru', $id_guru);
 
     if ($stmt->execute()) {
-        header("Location: list_guru.php");
-        exit;
+       // Redirect ke halaman list guru dengan status success
+       header("Location: list_guru.php?status=edit_success");
+       exit();
     } else {
-        echo "Gagal memperbarui data guru.";
+        // Redirect ke halaman list guru dengan status error
+        header("Location: list_guru.php?status=error");
+        exit();
     }
 }
 ?>

@@ -26,15 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bindParam(':alamat', $alamat);
 
     if ($stmt->execute()) {
-        header("Location: list_guru.php");
-        exit;
+        // Redirect ke halaman list guru dengan status success
+        header("Location: list_guru.php?status=add_success");
+        exit();
     } else {
-        echo "Gagal menambahkan data guru.";
+        // Redirect ke halaman list guru dengan status error
+        header("Location: list_guru.php?status=error");
+        exit();
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -43,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
+
 <body id="page-top">
     <?php include '../templates/header.php'; ?>
     <?php include '../templates/sidebar.php'; ?>
@@ -86,4 +91,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     <?php include '../templates/footer.php'; ?>
 </body>
+
 </html>
