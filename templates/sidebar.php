@@ -7,7 +7,6 @@
         <div class="sidebar-brand-text mx-3">Absensi Sekolah</div>
     </a>
     <hr class="sidebar-divider my-0">
-
     <!-- Dashboard -->
     <li class="nav-item <?php echo $active_page === 'dashboard' ? 'active' : ''; ?>">
         <a class="nav-link" href="index.php">
@@ -16,7 +15,6 @@
         </a>
     </li>
     <hr class="sidebar-divider">
-
     <?php if ($_SESSION['user']['role'] === 'admin'): ?>
         <div class="sidebar-heading">
             Admin Menu
@@ -57,9 +55,15 @@
                 <span>Laporan Absensi Siswa</span>
             </a>
         </li>
+        <!-- Menu Layanan Pengaduan -->
+        <li class="nav-item <?php echo $active_page === 'list_pengaduan' ? 'active' : ''; ?>">
+            <a class="nav-link" href="list_pengaduan.php">
+                <i class="fas fa-fw fa-exclamation-circle"></i> <!-- Icon for layanan pengaduan -->
+                <span>Layanan Pengaduan</span>
+            </a>
+        </li>
         <hr class="sidebar-divider">
     <?php endif; ?>
-
     <?php if ($_SESSION['user']['role'] === 'guru'): ?>
         <div class="sidebar-heading">
             Guru Menu
@@ -90,7 +94,6 @@
         </li>
         <hr class="sidebar-divider">
     <?php endif; ?>
-
     <!-- Logout -->
     <li class="nav-item">
         <a class="nav-link" href="../auth/logout.php">
@@ -104,16 +107,3 @@
     </div>
 </ul>
 <!-- End of Sidebar -->
-
-<!-- Added JS for sidebar toggle -->
-<!-- <script>
-// Wait until DOM is fully loaded
-document.addEventListener('DOMContentLoaded', function () {
-    var sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('toggled');
-        });
-    }
-});
-</script> -->
