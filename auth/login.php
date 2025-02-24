@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Absensi Sekolah</title>
+    <title>Login - Management Salassika</title>
     <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
@@ -50,9 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-0">
                         <div class="p-5">
-                            <div class="text-center">
-                                <h1 class="h4 text-gray-900"><strong>Login Piket Guru</strong></h1>
-                                <p class="text-gray-900"><b>SMK AL-AMIIN</b></p>
+                            <div class="text-center py-2 pb-4">
+                                <h1 class="h4 text-primary"><strong>SISTEM INFORMASI MANAGEMENT</strong></h1>
+                                <h5 class="text-primary"><b>SALASSIKA</b></h5>
                             </div>
                             <?php if (!empty($error)): ?>
                                 <div class="alert alert-danger" role="alert">
