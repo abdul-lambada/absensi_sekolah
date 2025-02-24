@@ -7,8 +7,22 @@ include '../templates/sidebar.php';
 // Koneksi ke database
 include '../includes/db.php';
 
-// Ambil data Kelas beserta nama jurusan
-$stmt = $conn->query("SELECT k.*, j.nama_jurusan FROM Kelas k JOIN Jurusan j ON k.id_jurusan = j.id_jurusan");
+// Set pagination variables
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if($page < 1) $page = 1;
+$offset = ($page - 1) * $limit;
+
+// Query total rows from Kelas table
+$countStmt = $conn->query("SELECT COUNT(*) as total FROM Kelas");
+$totalRows = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+$totalPages = ceil($totalRows / $limit);
+
+// Ambil data Kelas beserta nama jurusan dengan limit dan offset
+$stmt = $conn->prepare("SELECT k.*, j.nama_jurusan FROM Kelas k JOIN Jurusan j ON k.id_jurusan = j.id_jurusan LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 $kelas_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Cek status dari query string
@@ -61,7 +75,7 @@ switch ($status) {
                             <h6 class="m-0 font-weight-bold text-primary">Data Kelas</h6>
                         </div>
                         <div class="card-header py-3">
-                            <a href="tambah_kelas.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"></i></a>
+                            <a href="tambah_kelas.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"> Tambah Data</i></a>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -79,8 +93,8 @@ switch ($status) {
                                                 <td><?php echo htmlspecialchars($kelas['nama_kelas']); ?></td>
                                                 <td><?php echo htmlspecialchars($kelas['nama_jurusan']); ?></td>
                                                 <td>
-                                                    <a href="edit_kelas.php?id=<?php echo $kelas['id_kelas']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"></i></a>
+                                                    <a href="edit_kelas.php?id=<?php echo $kelas['id_kelas']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"> Edit</i></a>
+                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"> Hapus</i></a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -91,6 +105,22 @@ switch ($status) {
                                     <?php endif; ?>
                                 </tbody>
                             </table>
+                            <!-- Dynamic Pagination SB Admin 2 -->
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end">
+                                    <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
+                                    </li>
+                                    <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                                        <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>

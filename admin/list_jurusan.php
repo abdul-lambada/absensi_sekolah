@@ -4,10 +4,19 @@ $active_page = "list_jurusan"; // Untuk menandai menu aktif di sidebar
 include '../templates/header.php';
 include '../templates/sidebar.php';
 
-// Ambil data Jurusan
+// Pagination: retrieve current page and set limit
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10;
+$offset = ($page - 1) * $limit;
+
+// Ambil data Jurusan dengan pagination
 include '../includes/db.php';
-$stmt = $conn->query("SELECT * FROM Jurusan");
+$stmt = $conn->query("SELECT SQL_CALC_FOUND_ROWS * FROM Jurusan LIMIT $limit OFFSET $offset");
 $jurusan_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get total number of rows and compute total pages
+$total = $conn->query("SELECT FOUND_ROWS()")->fetchColumn();
+$totalPages = ceil($total / $limit);
 
 // Cek status dari query string
 $status = isset($_GET['status']) ? $_GET['status'] : '';
@@ -59,7 +68,7 @@ switch ($status) {
                             <h6 class="m-0 font-weight-bold text-primary">Data Jurusan</h6>
                         </div>
                         <div class="card-header py-3">
-                            <a href="tambah_jurusan.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"></i></a>
+                            <a href="tambah_jurusan.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"> Tambah Data</i></a>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -74,13 +83,41 @@ switch ($status) {
                                         <tr>
                                             <td><?php echo htmlspecialchars($jurusan['nama_jurusan']); ?></td>
                                             <td>
-                                                <a href="edit_jurusan.php?id=<?php echo $jurusan['id_jurusan']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"></i></a>
+                                                <a href="edit_jurusan.php?id=<?php echo $jurusan['id_jurusan']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"> Edit</i></a>
+                                                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"> Hapus</i></a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            <!-- Dynamic Pagination -->
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-end">
+                                    <?php if($page > 1): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<?php echo $page-1; ?>">Previous</a>
+                                        </li>
+                                    <?php else: ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Previous</span>
+                                        </li>
+                                    <?php endif; ?>
+                                    <?php for($i=1; $i <= $totalPages; $i++): ?>
+                                        <li class="page-item <?php if($page==$i) echo 'active'; ?>">
+                                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <?php if($page < $totalPages): ?>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=<?php echo $page+1; ?>">Next</a>
+                                        </li>
+                                    <?php else: ?>
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Next</span>
+                                        </li>
+                                    <?php endif; ?>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>

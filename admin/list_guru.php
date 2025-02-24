@@ -7,8 +7,24 @@ include '../templates/sidebar.php';
 // Koneksi database
 include '../includes/db.php';
 
-// Ambil data guru dari database
-$stmt = $conn->query("SELECT * FROM Guru");
+
+// Konfigurasi pagination
+$limit = 10; // Jumlah data per halaman
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Ambil total jumlah data guru
+$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM Guru");
+$totalRecords = $stmt_total->fetch(PDO::FETCH_ASSOC)['total'];
+
+// Hitung total halaman
+$totalPages = ceil($totalRecords / $limit);
+
+// Ambil data guru dengan limit dan offset
+$stmt = $conn->prepare("SELECT * FROM Guru LIMIT :limit OFFSET :offset");
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
 $guru_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Cek status dari query string
@@ -93,7 +109,7 @@ switch ($status) {
                                                 <td><?php echo htmlspecialchars($guru['alamat']); ?></td>
                                                 <td>
                                                     <a href="edit_guru.php?id=<?php echo htmlspecialchars($guru['id_guru']); ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                                    <a href="#" class="btn btn-danger btn-sm"data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"></i></a>
+                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -104,6 +120,28 @@ switch ($status) {
                                     <?php endif; ?>
                                 </tbody>
                             </table>
+                            <!-- Dynamic pagination -->
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end">
+                                    <!-- Tombol Previous -->
+                                    <li class="page-item <?php echo ($page == 1) ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
+                                    </li>
+
+                                    <!-- Nomor Halaman -->
+                                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                        <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+
+                                    <!-- Tombol Next -->
+                                    <li class="page-item <?php echo ($page == $totalPages) ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <!-- End Dynamic pagination -->
                         </div>
                     </div>
                 </div>
