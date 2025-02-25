@@ -17,8 +17,14 @@
     <hr class="sidebar-divider">
     <?php if ($_SESSION['user']['role'] === 'admin'): ?>
         <div class="sidebar-heading">
-            Admin Menu
+            Data Master
         </div>
+        <li class="nav-item <?php echo $active_page === 'sync_fingerprint' ? 'active' : ''; ?>">
+            <a class="nav-link" href="sync_fingerprint.php">
+                <i class="fas fa-fw fa-sync-alt"></i> <!-- Icon untuk sinkronisasi -->
+                <span>Sinkronisasi Fingerprint</span>
+            </a>
+        </li>
         <li class="nav-item <?php echo $active_page === 'list_jurusan' ? 'active' : ''; ?>">
             <a class="nav-link" href="list_jurusan.php">
                 <i class="fas fa-fw fa-building"></i> <!-- Changed icon for jurusan -->
@@ -101,7 +107,7 @@
             <span>Logout</span>
         </a>
     </li>
-    
+
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle" type="button"></button>
     </div>
