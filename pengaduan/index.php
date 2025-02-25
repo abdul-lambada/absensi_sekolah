@@ -1,9 +1,8 @@
 <?php
+session_start();
 $title = "Form Pengaduan";
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include '../includes/db.php';
-
     // Ambil data dari form
     $nama_pelapor = trim($_POST['nama_pelapor']);
     $no_wa = trim($_POST['no_wa']);
@@ -13,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $judul_pengaduan = trim($_POST['judul_pengaduan']);
     $isi_pengaduan = trim($_POST['isi_pengaduan']);
     $keterangan = trim($_POST['keterangan']);
-
     // Upload file pendukung
     $file_pendukung = '';
     if (isset($_FILES['file_pendukung']) && $_FILES['file_pendukung']['error'] == UPLOAD_ERR_OK) {
@@ -26,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         move_uploaded_file($_FILES['file_pendukung']['tmp_name'], $file_path);
         $file_pendukung = $file_name;
     }
-
+    // Validasi server-side
     if (!empty($nama_pelapor) && !empty($role_pelapor) && !empty($kategori) && !empty($judul_pengaduan) && !empty($isi_pengaduan)) {
         try {
             $stmt = $conn->prepare("
@@ -43,39 +41,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->bindParam(':keterangan', $keterangan);
             $stmt->bindParam(':file_pendukung', $file_pendukung);
             $stmt->execute();
+            // Redirect dengan alert sukses
+            echo "<div class='container mt-5'>
+                    <div class='row justify-content-center'>
+                        <div class='col-md-6'>
+                            <div class='alert alert-success alert-dismissible fade show' role='alert'>
+                                <h4 class='alert-heading'>Pengaduan Berhasil Dikirim!</h4>
+                                <p>Terima kasih telah mengirimkan pengaduan.</p>
+                                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                            </div>
+                        </div>
+                    </div>
+                  </div>";
             echo "<script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pengaduan Berhasil Dikirim!',
-                        text: 'Terima kasih telah mengirimkan pengaduan.',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
+                    setTimeout(function() {
                         window.location.href = 'index.php';
-                    });
+                    }, 3000); // Redirect setelah 3 detik
                   </script>";
+            exit;
         } catch (\PDOException $e) {
-            echo "<script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: '" . htmlspecialchars($e->getMessage()) . "',
-                        confirmButtonText: 'OK'
-                    });
-                  </script>";
+            echo "<div class='container mt-5'>
+                    <div class='row justify-content-center'>
+                        <div class='col-md-6'>
+                            <div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                                <h4 class='alert-heading'>Error!</h4>
+                                <p>" . htmlspecialchars($e->getMessage()) . "</p>
+                                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                            </div>
+                        </div>
+                    </div>
+                  </div>";
         }
     } else {
-        echo "<script>
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Oops...',
-                    text: 'Semua kolom wajib diisi!',
-                    confirmButtonText: 'OK'
-                });
-              </script>";
+        echo "<div class='container mt-5'>
+                <div class='row justify-content-center'>
+                    <div class='col-md-6'>
+                        <div class='alert alert-warning alert-dismissible fade show' role='alert'>
+                            <h4 class='alert-heading'>Oops...</h4>
+                            <p>Semua kolom wajib diisi!</p>
+                            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        </div>
+                    </div>
+                </div>
+              </div>";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -86,8 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <!-- SweetAlert2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <style>
         body {
@@ -135,7 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="header">
         <h1>Sistem Layanan Pengaduan Sekolah</h1>
     </div>
-
     <!-- Form Container -->
     <div class="form-container">
         <h2 class="text-primary text-center py-2">Form Layanan Pengaduan Salassika</h2>
@@ -191,11 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button type="submit" class="btn btn-primary w-100">Kirim Pengaduan</button>
         </form>
     </div>
-
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Validasi form interaktif
         document.getElementById('pengaduanForm').addEventListener('submit', function (e) {
@@ -204,9 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const kategori = document.getElementById('kategori').value.trim();
             const judulPengaduan = document.getElementById('judul_pengaduan').value.trim();
             const isiPengaduan = document.getElementById('isi_pengaduan').value.trim();
-
             if (!namaPelapor || !rolePelapor || !kategori || !judulPengaduan || !isiPengaduan) {
-                e.preventDefault();
+                e.preventDefault(); // Mencegah form dikirim jika validasi gagal
                 Swal.fire({
                     icon: 'warning',
                     title: 'Oops...',
