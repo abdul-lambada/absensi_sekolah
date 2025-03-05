@@ -22,7 +22,7 @@ if (isset($_POST['submit_ip'])) {
     $ip_address = trim($_POST['ip_address']);
     if (!empty($ip_address)) {
         // Redirect dengan parameter IP
-        header("Location: log_kehadiran.php?ip=" . urlencode($ip_address));
+        header("Location: attendance_records.php?ip=" . urlencode($ip_address));
         exit();
     } else {
         $message = 'IP Address tidak boleh kosong.';
