@@ -49,6 +49,20 @@
                 <span>List Siswa</span>
             </a>
         </li>
+        <!-- Link untuk tabel users -->
+        <li class="nav-item <?php echo $active_page === 'list_users' ? 'active' : ''; ?>">
+            <a class="nav-link" href="list_users.php">
+                <i class="fas fa-fw fa-users"></i> <!-- Icon untuk users -->
+                <span>Data Pengguna</span>
+            </a>
+        </li>
+        <!-- Link untuk tabel attendance_records -->
+        <li class="nav-item <?php echo $active_page === 'attendance_records' ? 'active' : ''; ?>">
+            <a class="nav-link" href="attendance_records.php">
+                <i class="fas fa-fw fa-clock"></i> <!-- Icon untuk absensi -->
+                <span>Log Absensi</span>
+            </a>
+        </li>
         <li class="nav-item <?php echo $active_page === 'laporan_guru' ? 'active' : ''; ?>">
             <a class="nav-link" href="laporan_guru.php">
                 <i class="fas fa-fw fa-user-check"></i> <!-- Changed icon for laporan absensi guru -->
@@ -107,7 +121,6 @@
             <span>Logout</span>
         </a>
     </li>
-
     <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle" type="button"></button>
     </div>
