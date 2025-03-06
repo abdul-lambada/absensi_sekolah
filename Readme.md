@@ -36,10 +36,10 @@ Proyek ini adalah sistem absensi sekolah yang dibangun menggunakan PHP dan MySQL
     ```php
     // filepath: config.php
     <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "absensi_sekolah";
+    $servername = getenv('DB_SERVER') ?: 'localhost';
+    $username = getenv('DB_USERNAME') ?: 'root';
+    $password = getenv('DB_PASSWORD') ?: '';
+    $dbname = getenv('DB_NAME') ?: 'absensi_sekolah';
 
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -51,7 +51,15 @@ Proyek ini adalah sistem absensi sekolah yang dibangun menggunakan PHP dan MySQL
     ?>
     ```
 
-4. Jalankan XAMPP dan buka browser, lalu akses `http://localhost/absensi_sekolah`.
+4. Buat file `.env` di direktori root proyek dan tambahkan konfigurasi database:
+    ```env
+    DB_SERVER=localhost
+    DB_USERNAME=root
+    DB_PASSWORD=
+    DB_NAME=absensi_sekolah
+    ```
+
+5. Jalankan XAMPP dan buka browser, lalu akses `http://localhost/absensi_sekolah`.
 
 ## Penggunaan
 
