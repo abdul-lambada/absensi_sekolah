@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+$active_page = "dashboard"; // Untuk menandai menu aktif di sidebar
+
+
 // Periksa apakah sesi 'user' tersedia
 if (!isset($_SESSION['user'])) {
     header("Location: ../auth/login.php");

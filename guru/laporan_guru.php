@@ -1,6 +1,8 @@
 <?php
 session_start();
 include '../includes/db.php';
+$active_page = "laporan_guru"; // Untuk menandai menu aktif di sidebar
+
 
 // Periksa apakah sesi 'user' tersedia
 if (!isset($_SESSION['user'])) {

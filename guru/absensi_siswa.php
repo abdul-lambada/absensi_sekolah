@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../includes/db.php';
+$active_page = "absensi_siswa"; // Untuk menandai menu aktif di sidebar
 
 // Periksa apakah sesi 'user' tersedia
 if (!isset($_SESSION['user'])) {
