@@ -3,7 +3,7 @@
 ob_start();
 
 $title = "Log Kehadiran";
-$active_page = "log_kehadiran"; // Untuk menandai menu aktif di sidebar
+$active_page = "attendance_records"; // Untuk menandai menu aktif di sidebar
 include '../templates/header.php';
 include '../templates/sidebar.php';
 
@@ -28,6 +28,19 @@ if (isset($_POST['submit_ip'])) {
         $message = 'IP Address tidak boleh kosong.';
         $alert_class = 'alert-danger';
     }
+}
+
+// Handle status messages
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+$message = '';
+$alert_class = '';
+
+if ($status == 'delete_success') {
+    $message = 'Data log kehadiran berhasil dihapus.';
+    $alert_class = 'alert-success';
+} elseif ($status == 'error') {
+    $message = 'Terjadi kesalahan saat menghapus data log kehadiran.';
+    $alert_class = 'alert-danger';
 }
 
 // Ambil data log kehadiran dari database
@@ -182,30 +195,9 @@ if (!empty($ip_address)) {
                                                 <td><?php echo htmlspecialchars($log['verification_mode']); ?></td>
                                                 <td><?php echo htmlspecialchars($log['status']); ?></td>
                                                 <td>
-                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal-<?php echo $log['id']; ?>">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </a>
+                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"> Hapus</i></a>
                                                 </td>
                                             </tr>
-
-                                            <!-- Modal Hapus Data -->
-                                            <div class="modal fade" id="deleteModal-<?php echo $log['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
-                                                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">×</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">Apakah Anda yakin ingin menghapus data ini?</div>
-                                                        <div class="modal-footer">
-                                                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                                                            <a class="btn btn-danger" href="hapus_log.php?id=<?php echo $log['id']; ?>">Hapus</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
@@ -245,6 +237,26 @@ if (!empty($ip_address)) {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus Data -->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Apakah Kamu Yakin, Akan Menghapus Data Ini.!</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="hapus_kehadiran.php?id=<?php echo $log['id']; ?>">Hapus</a>
             </div>
         </div>
     </div>

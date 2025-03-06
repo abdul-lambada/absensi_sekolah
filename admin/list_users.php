@@ -4,9 +4,13 @@ $active_page = "list_users"; // Untuk menandai menu aktif di sidebar
 include '../templates/header.php';
 include '../templates/sidebar.php';
 
+// Input IP address and port for ZKTeco device
+$device_ip = isset($_POST['device_ip']) ? $_POST['device_ip'] : '192.168.1.201';
+$device_port = isset($_POST['device_port']) ? $_POST['device_port'] : 4370;
+
 // Koneksi ke ZKTeco device
 require '../includes/zklib/zklibrary.php';
-$zk = new ZKLibrary('192.168.1.201', 4370);
+$zk = new ZKLibrary($device_ip, $device_port);
 $zk->connect();
 $zk->disableDevice();
 
@@ -29,7 +33,7 @@ try {
         $uid = $key;
         $id = $user[0];
         $name = $user[1];
-        $role = $user[2];
+        $role = $user[2] == 0 ? 'User' : 'Admin'; // Update role handling
         $password = $user[3];
 
         // Query untuk memeriksa apakah UID sudah ada di database
@@ -74,6 +78,10 @@ try {
 $zk->enableDevice();
 $zk->disconnect();
 
+// Alert to display the connected IP address
+$connected_ip_message = "Terhubung ke perangkat dengan IP: $device_ip";
+$connected_ip_alert_class = 'alert-info';
+
 // Cek status dari query string
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $message = '';
@@ -106,6 +114,29 @@ switch ($status) {
             <h1 class="h3 mb-0 text-gray-800">List Users</h1>
         </nav>
         <div class="container-fluid">
+            <!-- Form to input device IP and port -->
+            <form method="POST" action="" class="py-2">
+                <div class="form-group">
+                    <label for="device_ip">Device IP:</label>
+                    <input type="text" class="form-control" id="device_ip" name="device_ip" value="<?php echo htmlspecialchars($device_ip); ?>">
+                </div>
+                <div class="form-group">
+                    <label for="device_port">Device Port:</label>
+                    <input type="text" class="form-control" id="device_port" name="device_port" value="<?php echo htmlspecialchars($device_port); ?>">
+                </div>
+                <button type="submit" class="btn btn-primary">Connect</button>
+            </form>
+            <!-- End form -->
+
+            <!-- Begin Alert for Connected IP -->
+            <div class="alert <?php echo $connected_ip_alert_class; ?> alert-dismissible fade show" role="alert">
+                <?php echo $connected_ip_message; ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!-- End Alert for Connected IP -->
+
             <!-- Begin Alert SB Admin 2 -->
             <?php if (!empty($message)): ?>
                 <div class="alert <?php echo $alert_class; ?> alert-dismissible fade show" role="alert">
@@ -121,9 +152,6 @@ switch ($status) {
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Data Users</h6>
-                        </div>
-                        <div class="card-header py-3">
-                            <a href="tambah_user.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"> Tambah Data</i></a>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered">
@@ -150,8 +178,7 @@ switch ($status) {
                                             <td><?php echo htmlspecialchars($user['role']); ?></td>
                                             <td><?php echo htmlspecialchars($user['password']); ?></td>
                                             <td>
-                                                <a href="edit_user.php?id=<?php echo $user['id']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"> Edit</i></a>
-                                                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal" data-id="<?php echo $user['id']; ?>"><i class="fas fa-trash"> Hapus</i></a>
+                                                <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-trash"> Hapus</i></a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -204,10 +231,10 @@ switch ($status) {
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <div class="modal-body">Apakah Kamu Yakin, Akan Menghapus Data Ini?</div>
+            <div class="modal-body">Apakah Kamu Yakin, Akan Menghapus Data Ini.!</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary delete-user-btn" href="#">Hapus</a>
+                <a class="btn btn-primary" href="hapus_users.php?id=<?php echo $users['id']; ?>">Hapus</a>
             </div>
         </div>
     </div>
