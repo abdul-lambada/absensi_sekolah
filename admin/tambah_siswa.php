@@ -2,53 +2,76 @@
 session_start();
 include '../includes/db.php';
 
+// Redirect jika bukan admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header("Location: ../auth/login.php");
     exit;
 }
 
 // Ambil daftar kelas untuk dropdown
-$stmt_kelas = $conn->query("SELECT * FROM Kelas");
+$stmt_kelas = $conn->prepare("SELECT id_kelas, nama_kelas FROM kelas");
+$stmt_kelas->execute();
 $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
 
+// Ambil daftar user untuk dropdown (hanya ambil name dan id)
+$stmt_users = $conn->prepare("SELECT id, name FROM users");
+$stmt_users->execute();
+$users_list = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
+
+// Proses form submit
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Ambil data dari form
-    $nisn = $_POST['nisn'];
-    $nama_siswa = $_POST['nama_siswa'];
-    $jenis_kelamin = $_POST['jenis_kelamin'];
-    $tanggal_lahir = $_POST['tanggal_lahir'];
-    $alamat = $_POST['alamat'];
-    $id_kelas = $_POST['id_kelas'];
+    try {
+        $conn->beginTransaction();
 
-    // Simpan data ke database
-    $stmt = $conn->prepare("INSERT INTO Siswa (nisn, nama_siswa, jenis_kelamin, tanggal_lahir, alamat, id_kelas) VALUES (:nisn, :nama_siswa, :jenis_kelamin, :tanggal_lahir, :alamat, :id_kelas)");
-    $stmt->bindParam(':nisn', $nisn);
-    $stmt->bindParam(':nama_siswa', $nama_siswa);
-    $stmt->bindParam(':jenis_kelamin', $jenis_kelamin);
-    $stmt->bindParam(':tanggal_lahir', $tanggal_lahir);
-    $stmt->bindParam(':alamat', $alamat);
-    $stmt->bindParam(':id_kelas', $id_kelas);
+        // Ambil data form
+        $nis = $_POST['nis'];
+        $jenis_kelamin = $_POST['jenis_kelamin'];
+        $tanggal_lahir = $_POST['tanggal_lahir'];
+        $alamat = $_POST['alamat'];
+        $id_kelas = $_POST['id_kelas'];
+        $user_id = $_POST['user_id'];
 
-    if ($stmt->execute()) {
-         // Redirect ke halaman list siswa dengan status success
-         header("Location: list_siswa.php?status=add_success");
-         exit();
-    } else {
-        // echo "Gagal menambahkan data siswa."; 
-        // Redirect ke halaman list siswa dengan status error
-        header("Location: list_siswa.php?status=error");
+        // Validasi NIS unik
+        $check_nis = $conn->prepare("SELECT id_siswa FROM siswa WHERE nis = ?");
+        $check_nis->execute(array($nis));
+        
+        if ($check_nis->rowCount() > 0) {
+            throw new Exception("NIS sudah digunakan");
+        }
+
+        // Insert ke tabel siswa
+        $stmt = $conn->prepare("
+            INSERT INTO siswa 
+            (nis, jenis_kelamin, tanggal_lahir, alamat, id_kelas, user_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute(array(
+            $nis,
+            $jenis_kelamin,
+            $tanggal_lahir,
+            $alamat,
+            $id_kelas,
+            $user_id
+        ));
+
+        $conn->commit();
+        header("Location: list_siswa.php?status=add_success");
         exit();
+        
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $error_message = $e->getMessage();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Tambah Siswa - Management Salassika</title>
-    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <title>Tambah Siswa</title>
+    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="../css/sb-admin-2.css" rel="stylesheet">
 </head>
 <body id="page-top">
@@ -60,39 +83,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h1 class="h3 mb-0 text-gray-800">Tambah Siswa</h1>
             </nav>
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card shadow mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Form Tambah Siswa</h6>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Form Tambah Siswa</h6>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($error_message)): ?>
+                            <div class="alert alert-danger">
+                                <?php echo htmlspecialchars($error_message); ?>
                             </div>
-                            <div class="card-body">
-                                <form method="POST" action="">
-                                    <label>NISN:</label>
-                                    <input type="text" name="nisn" class="form-control" required><br>
-                                    <label>Nama Siswa:</label>
-                                    <input type="text" name="nama_siswa" class="form-control" required><br>
-                                    <label>Jenis Kelamin:</label>
-                                    <select name="jenis_kelamin" class="form-control" required>
-                                        <option value="Laki-laki">Laki-laki</option>
-                                        <option value="Perempuan">Perempuan</option>
-                                    </select><br>
-                                    <label>Tanggal Lahir:</label>
-                                    <input type="date" name="tanggal_lahir" class="form-control" required><br>
-                                    <label>Alamat:</label>
-                                    <textarea name="alamat" class="form-control" required></textarea><br>
-                                    <label>Kelas:</label>
-                                    <select name="id_kelas" class="form-control" required>
-                                        <?php foreach ($kelas_list as $kelas): ?>
-                                            <option value="<?php echo $kelas['id_kelas']; ?>">
-                                                <?php echo $kelas['nama_kelas']; ?>
+                        <?php endif; ?>
+                        
+                        <form method="POST" action="">
+                            <div class="form-group">
+                                <label>NIS</label>
+                                <input type="text" name="nis" class="form-control" 
+                                       value="<?php echo isset($_POST['nis']) ? htmlspecialchars($_POST['nis']) : ''; ?>" 
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label>Jenis Kelamin</label>
+                                <select name="jenis_kelamin" class="form-control" required>
+                                    <option value="Laki-laki" <?php echo (isset($_POST['jenis_kelamin']) && $_POST['jenis_kelamin'] == 'Laki-laki') ? 'selected' : ''; ?>>Laki-laki</option>
+                                    <option value="Perempuan" <?php echo (isset($_POST['jenis_kelamin']) && $_POST['jenis_kelamin'] == 'Perempuan') ? 'selected' : ''; ?>>Perempuan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tanggal Lahir</label>
+                                <input type="date" name="tanggal_lahir" class="form-control" 
+                                       value="<?php echo isset($_POST['tanggal_lahir']) ? htmlspecialchars($_POST['tanggal_lahir']) : ''; ?>" 
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label>Alamat</label>
+                                <textarea name="alamat" class="form-control" required><?php echo isset($_POST['alamat']) ? htmlspecialchars($_POST['alamat']) : ''; ?></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Kelas</label>
+                                <select name="id_kelas" class="form-control" required>
+                                    <option value="">Pilih Kelas</option>
+                                    <?php foreach ($kelas_list as $kelas): ?>
+                                        <option value="<?php echo $kelas['id_kelas']; ?>" 
+                                            <?php echo (isset($_POST['id_kelas']) && $_POST['id_kelas'] == $kelas['id_kelas']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($kelas['nama_kelas']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>User</label>
+                                <select name="user_id" class="form-control" required>
+                                    <option value="">Pilih User</option>
+                                    <?php if (!empty($users_list)): ?>
+                                        <?php foreach ($users_list as $user): ?>
+                                            <option value="<?php echo $user['id']; ?>" 
+                                                <?php echo (isset($_POST['user_id']) && $_POST['user_id'] == $user['id']) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($user['name']); ?>
                                             </option>
                                         <?php endforeach; ?>
-                                    </select><br>
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                </form>
+                                    <?php else: ?>
+                                        <option value="" disabled>Tidak ada user tersedia</option>
+                                    <?php endif; ?>
+                                </select>
                             </div>
-                        </div>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <a href="list_siswa.php" class="btn btn-secondary">Kembali</a>
+                        </form>
                     </div>
                 </div>
             </div>

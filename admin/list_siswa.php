@@ -1,29 +1,38 @@
 <?php
 $title = "List Siswa";
-$active_page = "list_siswa"; // Untuk menandai menu aktif di sidebar
+$active_page = "list_siswa";
 include '../templates/header.php';
 include '../templates/sidebar.php';
-
-// Koneksi database
 include '../includes/db.php';
 
 // Konfigurasi pagination
-$limit = 10; // Jumlah data per halaman
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
+$limit = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Ambil total jumlah data siswa
-$stmt_total = $conn->query("SELECT COUNT(*) AS total FROM Siswa");
+// Ambil total data
+$stmt_total = $conn->query("
+    SELECT COUNT(*) AS total 
+    FROM Siswa s
+    JOIN kelas k ON s.id_kelas = k.id_kelas
+    JOIN users u ON s.user_id = u.id
+");
 $totalRecords = $stmt_total->fetch(PDO::FETCH_ASSOC)['total'];
-
-// Hitung total halaman
 $totalPages = ceil($totalRecords / $limit);
 
-// Ambil data siswa dengan limit dan offset
+// Query dengan join ke tabel kelas dan users
 $stmt = $conn->prepare("
-    SELECT s.id_siswa, s.nama_siswa, s.nisn, s.jenis_kelamin, s.tanggal_lahir, s.alamat, k.nama_kelas 
-    FROM Siswa s 
-    LEFT JOIN Kelas k ON s.id_kelas = k.id_kelas
+    SELECT 
+        s.id_siswa, 
+        s.nis, 
+        s.jenis_kelamin, 
+        s.tanggal_lahir, 
+        s.alamat, 
+        k.nama_kelas, 
+        u.name AS user_name
+    FROM Siswa s
+    JOIN kelas k ON s.id_kelas = k.id_kelas
+    JOIN users u ON s.user_id = u.id
     LIMIT :limit OFFSET :offset
 ");
 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -31,9 +40,11 @@ $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $siswa_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Cek status dari query string
+// Handling status message
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $message = '';
+$alert_class = '';
+
 switch ($status) {
     case 'add_success':
         $message = 'Data siswa berhasil ditambahkan.';
@@ -51,126 +62,128 @@ switch ($status) {
         $message = 'Terjadi kesalahan saat memproses data.';
         $alert_class = 'alert-danger';
         break;
-    default:
-        $message = '';
-        $alert_class = '';
-        break;
 }
 ?>
+
 <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             <h1 class="h3 mb-0 text-gray-800">List Siswa</h1>
         </nav>
         <div class="container-fluid">
-            <!-- Begin Alert SB Admin 2 -->
             <?php if (!empty($message)): ?>
-                <div class="alert <?php echo $alert_class; ?> alert-dismissible fade show" role="alert">
-                    <?php echo $message; ?>
+                <div class="alert <?= $alert_class ?> alert-dismissible fade show" role="alert">
+                    <?= $message ?>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
             <?php endif; ?>
-            <!-- End Alert SB Admin 2 -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Data Siswa</h6>
-                        </div>
-                        <div class="card-header py-3">
-                            <a href="tambah_siswa.php" class="btn btn-success btn-sm"><i class="fas fa-plus-circle"></i> Tambah Siswa</a>
-                            <!-- Form Upload Excel -->
-                            <form method="POST" action="" enctype="multipart/form-data" style="display:inline;">
-                                <input type="file" name="excel_file" accept=".xlsx, .xls" required>
-                                <button type="submit" name="import_excel" class="btn btn-primary btn-sm"><i class="fas fa-file-import"></i> Import Excel</button>
-                            </form>
-                            <!-- Tombol Unduh Format Excel -->
-                            <a href="../assets/format_siswa.xlsx" class="btn btn-info btn-sm" download><i class="fas fa-download"></i> Unduh Format Excel</a>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>NISN</th>
-                                        <th>Nama Siswa</th>
-                                        <th>Jenis Kelamin</th>
-                                        <th>Tanggal Lahir</th>
-                                        <th>Alamat</th>
-                                        <th>Kelas</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($siswa_list)): ?>
-                                        <?php foreach ($siswa_list as $siswa): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($siswa['nisn']); ?></td>
-                                                <td><?php echo htmlspecialchars($siswa['nama_siswa']); ?></td>
-                                                <td><?php echo htmlspecialchars($siswa['jenis_kelamin']); ?></td>
-                                                <td><?php echo htmlspecialchars($siswa['tanggal_lahir']); ?></td>
-                                                <td><?php echo htmlspecialchars($siswa['alamat']); ?></td>
-                                                <td><?php echo htmlspecialchars($siswa['nama_kelas']); ?></td>
-                                                <td>
-                                                    <a href="edit_siswa.php?id=<?php echo htmlspecialchars($siswa['id_siswa']); ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                                    <a href="#" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#logoutModal-<?php echo $siswa['id_siswa']; ?>"><i class="fas fa-trash"></i></a>
-                                                </td>
-                                            </tr>
 
-                                            <!-- Modal Hapus Data -->
-                                            <div class="modal fade" id="logoutModal-<?php echo $siswa['id_siswa']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
-                                                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">×</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">Apakah Kamu Yakin, Akan Menghapus Data Ini?</div>
-                                                        <div class="modal-footer">
-                                                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                                                            <a class="btn btn-primary" href="hapus_siswa.php?id=<?php echo htmlspecialchars($siswa['id_siswa']); ?>">Hapus</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="7" class="text-center">Tidak ada data siswa.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-
-                            <!-- Pagination -->
-                            <nav aria-label="Page navigation example">
-                                <ul class="pagination justify-content-end">
-                                    <!-- Tombol Previous -->
-                                    <li class="page-item <?php echo ($page == 1) ? 'disabled' : ''; ?>">
-                                        <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1">Previous</a>
-                                    </li>
-
-                                    <!-- Nomor Halaman -->
-                                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                                        <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                                            <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                                        </li>
-                                    <?php endfor; ?>
-
-                                    <!-- Tombol Next -->
-                                    <li class="page-item <?php echo ($page == $totalPages) ? 'disabled' : ''; ?>">
-                                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Data Siswa</h6>
+                    <div>
+                        <a href="tambah_siswa.php" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus-circle"></i> Tambah Siswa
+                        </a>
+                        <form method="POST" action="import_siswa.php" enctype="multipart/form-data" class="d-inline">
+                            <input type="file" name="excel_file" accept=".xlsx, .xls" required>
+                            <button type="submit" name="import_excel" class="btn btn-primary btn-sm">
+                                <i class="fas fa-file-import"></i> Import Excel
+                            </button>
+                        </form>
+                        <a href="../assets/format_siswa.xlsx" class="btn btn-info btn-sm" download>
+                            <i class="fas fa-download"></i> Unduh Format Excel
+                        </a>
                     </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>ID Siswa</th>
+                                <th>NIS</th>
+                                <th>Jenis Kelamin</th>
+                                <th>Tanggal Lahir</th>
+                                <th>Alamat</th>
+                                <th>Kelas</th>
+                                <th>User</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($siswa_list as $siswa): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($siswa['id_siswa']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['nis']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['jenis_kelamin']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['tanggal_lahir']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['alamat']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['nama_kelas']) ?></td>
+                                    <td><?= htmlspecialchars($siswa['user_name']) ?></td>
+                                    <td>
+                                        <a href="edit_siswa.php?id=<?= $siswa['id_siswa'] ?>" 
+                                           class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm" 
+                                                data-toggle="modal" 
+                                                data-target="#deleteModal<?= $siswa['id_siswa'] ?>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Delete Confirmation Modal -->
+                                <div class="modal fade" id="deleteModal<?= $siswa['id_siswa'] ?>" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Konfirmasi Hapus</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span>&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Apakah Anda yakin ingin menghapus data ini?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Batal
+                                                </button>
+                                                <a href="hapus_siswa.php?id=<?= $siswa['id_siswa'] ?>" 
+                                                   class="btn btn-danger">
+                                                    Hapus
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                            </li>
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <?php include '../templates/footer.php'; ?>
