@@ -90,6 +90,7 @@ switch ($status) {
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
+                                        <th>No</th>
                                         <th>Nama Guru</th>
                                         <th>NIP</th>
                                         <th>Jenis Kelamin</th>
@@ -100,8 +101,9 @@ switch ($status) {
                                 </thead>
                                 <tbody>
                                     <?php if (!empty($guru_list)): ?>
-                                        <?php foreach ($guru_list as $guru): ?>
+                                        <?php foreach ($guru_list as $index => $guru): ?>
                                             <tr>
+                                                <td><?php echo ($page - 1) * $limit + $index + 1; ?></td>
                                                 <td><?php echo htmlspecialchars($guru['nama_guru']); ?></td>
                                                 <td><?php echo htmlspecialchars($guru['nip']); ?></td>
                                                 <td><?php echo htmlspecialchars($guru['jenis_kelamin']); ?></td>
@@ -115,7 +117,7 @@ switch ($status) {
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="6" class="text-center">Tidak ada data guru.</td>
+                                            <td colspan="7" class="text-center">Tidak ada data guru.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>

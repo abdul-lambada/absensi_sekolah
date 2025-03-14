@@ -74,13 +74,15 @@ switch ($status) {
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
+                                        <th>No</th>
                                         <th>Nama Jurusan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($jurusan_list as $jurusan): ?>
+                                    <?php foreach ($jurusan_list as $index => $jurusan): ?>
                                         <tr>
+                                            <td><?php echo ($page - 1) * $limit + $index + 1; ?></td>
                                             <td><?php echo htmlspecialchars($jurusan['nama_jurusan']); ?></td>
                                             <td>
                                                 <a href="edit_jurusan.php?id=<?php echo $jurusan['id_jurusan']; ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"> Edit</i></a>
