@@ -1,3 +1,8 @@
+<?php
+// Define active page based on current script name
+$active_page = basename($_SERVER['PHP_SELF'], '.php');
+?>
+
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
