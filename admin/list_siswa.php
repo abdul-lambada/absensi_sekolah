@@ -98,7 +98,7 @@ switch ($status) {
                         </a>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body table-responsive-sm">
                     <table class="table table-bordered" id="dataTable">
                         <thead>
                             <tr>

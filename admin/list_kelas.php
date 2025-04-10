@@ -75,7 +75,7 @@ switch ($status) {
                         <i class="fas fa-plus-circle"></i> Tambah Data
                     </a>
                 </div>
-                <div class="card-body">
+                <div class="card-body table-responsive-sm">
                     <table class="table table-bordered">
                         <thead>
                             <tr>

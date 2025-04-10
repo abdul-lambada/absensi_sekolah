@@ -3,7 +3,6 @@ session_start();
 include '../includes/db.php';
 $active_page = "laporan_siswa"; // Untuk menandai menu aktif di sidebar
 
-
 // Periksa apakah sesi 'user' tersedia
 if (!isset($_SESSION['user'])) {
     header("Location: ../auth/login.php");
@@ -22,10 +21,19 @@ $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
 
 // Query untuk mengambil data absensi
 $query = "
-    SELECT asis.*, s.nama_siswa, k.nama_kelas
+    SELECT 
+        asis.tanggal,
+        u.name AS nama_siswa,
+        k.nama_kelas,
+        asis.status AS status_kehadiran,
+        asis.catatan,
+        kh.timestamp AS waktu_kehadiran,
+        kh.status AS status_verifikasi
     FROM Absensi_Siswa asis
     JOIN Siswa s ON asis.id_siswa = s.id_siswa
     JOIN Kelas k ON s.id_kelas = k.id_kelas
+    JOIN users u ON s.user_id = u.id
+    LEFT JOIN tbl_kehadiran kh ON kh.user_id = u.id
     WHERE 1=1
 ";
 
@@ -45,108 +53,6 @@ $query .= " ORDER BY asis.tanggal DESC";
 $stmt_absensi = $conn->prepare($query);
 $stmt_absensi->execute($params);
 $absensi_list = $stmt_absensi->fetchAll(PDO::FETCH_ASSOC);
-
-// Tombol Download Laporan
-if (isset($_GET['download']) && $_GET['download'] == 'csv') {
-    // Header untuk file CSV
-    header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="laporan_absensi.csv"');
-
-    // Buka output stream
-    $output = fopen('php://output', 'w');
-
-    // Tulis header kolom
-    fputcsv($output, ['Tanggal', 'Nama Siswa', 'Kelas', 'Status Kehadiran', 'Jam Masuk', 'Jam Keluar', 'Catatan']);
-
-    // Tulis data absensi
-    foreach ($absensi_list as $absensi) {
-        fputcsv($output, [
-            $absensi['tanggal'],
-            $absensi['nama_siswa'],
-            $absensi['nama_kelas'],
-            $absensi['status_kehadiran'],
-            $absensi['jam_masuk'],
-            $absensi['jam_keluar'],
-            $absensi['catatan']
-        ]);
-    }
-
-    // Tutup output stream
-    fclose($output);
-    exit;
-}
-
-if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
-    require('../vendor/fpdf/fpdf.php'); // Pastikan path ke FPDF benar
-
-    // Inisialisasi FPDF
-    class PDF extends FPDF {
-        // Kop Surat
-        function Header() {
-            // Logo sekolah (pastikan file logo.png ada di folder yang sama)
-            $this->Image('../img/logo.png', 10, 10, 30); // Ukuran logo 30x30 px
-
-            // Nama sekolah dan alamat
-            $this->SetFont('Arial', 'B', 16);
-            $this->Cell(0, 10, 'SMK Contoh Indonesia', 0, 1, 'C');
-            $this->SetFont('Arial', '', 12);
-            $this->Cell(0, 10, 'Jl. Contoh No. 123, Kota Contoh, Provinsi Contoh', 0, 1, 'C');
-            $this->Ln(10);
-
-            // Judul laporan
-            $this->SetFont('Arial', 'B', 14);
-            $this->Cell(0, 10, 'LAPORAN ABSENSI SISWA', 0, 1, 'C');
-            $this->Ln(10);
-        }
-
-        // Footer
-        function Footer() {
-            $this->SetY(-15); // Posisi 15 mm dari bawah
-            $this->SetFont('Arial', 'I', 8);
-            $this->Cell(0, 10, 'Halaman ' . $this->PageNo(), 0, 0, 'C');
-        }
-    }
-
-    // Inisialisasi objek PDF
-    $pdf = new PDF();
-    $pdf->AddPage();
-    $pdf->SetFont('Arial', '', 10);
-
-    // Filter tanggal (opsional)
-    if (!empty($tanggal_awal) && !empty($tanggal_akhir)) {
-        $pdf->Cell(0, 10, 'Periode: ' . $tanggal_awal . ' s/d ' . $tanggal_akhir, 0, 1, 'L');
-        $pdf->Ln(5);
-    }
-
-    // Header tabel
-    $pdf->SetFont('Arial', 'B', 10);
-    $pdf->Cell(30, 10, 'Tanggal', 1, 0, 'C');
-    $pdf->Cell(40, 10, 'Nama Siswa', 1, 0, 'C');
-    $pdf->Cell(30, 10, 'Kelas', 1, 0, 'C');
-    $pdf->Cell(30, 10, 'Status', 1, 0, 'C');
-    $pdf->Cell(20, 10, 'Jam Masuk', 1, 0, 'C');
-    $pdf->Cell(20, 10, 'Jam Keluar', 1, 0, 'C');
-    $pdf->Cell(40, 10, 'Catatan', 1, 1, 'C');
-
-    // Data absensi
-    $pdf->SetFont('Arial', '', 10);
-    foreach ($absensi_list as $absensi) {
-        $pdf->Cell(30, 10, $absensi['tanggal'], 1, 0, 'C');
-        $pdf->Cell(40, 10, $absensi['nama_siswa'], 1, 0, 'L');
-        $pdf->Cell(30, 10, $absensi['nama_kelas'], 1, 0, 'C');
-        $pdf->Cell(30, 10, $absensi['status_kehadiran'], 1, 0, 'C');
-        $pdf->Cell(20, 10, $absensi['jam_masuk'], 1, 0, 'C');
-        $pdf->Cell(20, 10, $absensi['jam_keluar'], 1, 0, 'C');
-        $pdf->Cell(40, 10, $absensi['catatan'], 1, 1, 'L');
-    }
-
-    // Bersihkan buffer output
-    ob_end_clean();
-
-    // Output file PDF
-    $pdf->Output('D', 'laporan_absensi.pdf'); // Gunakan 'D' untuk memaksa unduhan
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,8 +101,6 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
                                     </select><br>
 
                                     <button type="submit" class="btn btn-primary">Tampilkan Laporan</button>
-                                    <a href="?<?php echo http_build_query($_GET); ?>&download=csv" class="btn btn-success">Download CSV</a>
-                                    <a href="?<?php echo http_build_query($_GET); ?>&download=pdf" class="btn btn-danger">Download PDF</a>
                                 </form>
                             </div>
                         </div>
@@ -218,9 +122,9 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
                                             <th>Nama Siswa</th>
                                             <th>Kelas</th>
                                             <th>Status Kehadiran</th>
-                                            <th>Jam Masuk</th>
-                                            <th>Jam Keluar</th>
                                             <th>Catatan</th>
+                                            <th>Waktu Kehadiran</th>
+                                            <th>Status Verifikasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -231,9 +135,9 @@ if (isset($_GET['download']) && $_GET['download'] == 'pdf') {
                                                     <td><?php echo htmlspecialchars($absensi['nama_siswa']); ?></td>
                                                     <td><?php echo htmlspecialchars($absensi['nama_kelas']); ?></td>
                                                     <td><?php echo htmlspecialchars($absensi['status_kehadiran']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['jam_masuk']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['jam_keluar']); ?></td>
                                                     <td><?php echo htmlspecialchars($absensi['catatan']); ?></td>
+                                                    <td><?php echo htmlspecialchars(isset($absensi['waktu_kehadiran']) ? $absensi['waktu_kehadiran'] : 'Belum Ada'); ?></td>
+                                                    <td><?php echo htmlspecialchars(isset($absensi['status_verifikasi']) ? $absensi['status_verifikasi'] : 'Belum Diverifikasi'); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>

@@ -86,7 +86,7 @@ switch ($status) {
                             <!-- Tombol Unduh Format Excel -->
                             <a href="../assets/format_data_guru.xlsx" class="btn btn-info btn-sm" download><i class="fas fa-download"></i> Unduh Format Excel</a>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body table-responsive-sm">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>

@@ -20,10 +20,16 @@ $kelas_list = $stmt_kelas->fetchAll(PDO::FETCH_ASSOC);
 
 // Query untuk mengambil data absensi siswa
 $query = "
-    SELECT asis.*, s.nama_siswa, k.nama_kelas
+    SELECT 
+        asis.tanggal,
+        u.name AS nama_siswa,
+        k.nama_kelas,
+        asis.status AS status_kehadiran,
+        asis.catatan
     FROM Absensi_Siswa asis
     JOIN Siswa s ON asis.id_siswa = s.id_siswa
     JOIN Kelas k ON s.id_kelas = k.id_kelas
+    JOIN users u ON s.user_id = u.id
     WHERE 1=1
 ";
 
@@ -115,7 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['hapus_semua_siswa'])) 
                                     </select><br>
 
                                     <button type="submit" class="btn btn-primary">Tampilkan Laporan</button>
-                                    <a href="?<?php echo http_build_query($_GET); ?>&download=pdf" class="btn btn-danger">Download PDF</a>
                                 </form>
                             </div>
                         </div>
@@ -131,45 +136,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['hapus_semua_siswa'])) 
                             </div>
                             <div class="card-body">
                                 <table class="table table-bordered">
-                                    <thead>
+                                <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nama Siswa</th>
+                                    <th>Kelas</th>
+                                    <th>Status Kehadiran</th>
+                                    <th>Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($absensi_list)): ?>
+                                    <?php foreach ($absensi_list as $absensi): ?>
                                         <tr>
-                                            <th>Tanggal</th>
-                                            <th>Nama Siswa</th>
-                                            <th>Kelas</th>
-                                            <th>Status Kehadiran</th>
-                                            <th>Jam Masuk</th>
-                                            <th>Jam Keluar</th>
-                                            <th>Catatan</th>
+                                            <td><?php echo htmlspecialchars($absensi['tanggal']); ?></td>
+                                            <td><?php echo htmlspecialchars($absensi['nama_siswa']); ?></td>
+                                            <td><?php echo htmlspecialchars($absensi['nama_kelas']); ?></td>
+                                            <td><?php echo htmlspecialchars($absensi['status_kehadiran']); ?></td>
+                                            <td><?php echo htmlspecialchars($absensi['catatan']); ?></td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (!empty($absensi_list)): ?>
-                                            <?php foreach ($absensi_list as $absensi): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($absensi['tanggal']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['nama_siswa']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['nama_kelas']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['status_kehadiran']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['jam_masuk']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['jam_keluar']); ?></td>
-                                                    <td><?php echo htmlspecialchars($absensi['catatan']); ?></td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <tr>
-                                                <td colspan="7" class="text-center">Tidak ada data absensi.</td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center">Tidak ada data absensi.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
                                 </table>
 
-                                <!-- Tombol Hapus Semua Data -->
-                                <div class="text-right">
-                                    <form method="POST" action="" style="display:inline;">
-                                        <button type="submit" name="hapus_semua_siswa" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus SEMUA data absensi siswa?');">
-                                            Hapus Semua Data
-                                        </button>
-                                    </form>
+                                    <!-- Tombol Hapus Semua Data -->
+                                    <div class="text-right">
+                                        <form method="POST" action="" style="display:inline;">
+                                            <button type="submit" name="hapus_semua_siswa" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus SEMUA data absensi siswa?');">
+                                                Hapus Semua Data
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

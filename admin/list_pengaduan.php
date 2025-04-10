@@ -89,7 +89,7 @@ switch ($status) {
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Data Pengaduan</h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body table-responsive-sm">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>

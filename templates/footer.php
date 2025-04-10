@@ -9,7 +9,8 @@
 <script>
     // Automatically update the year in the footer
     document.getElementById('currentYear').textContent = new Date().getFullYear();
-</script><script src="../assets/vendor/jquery/jquery.min.js"></script>
+</script>
+<script src="../assets/vendor/jquery/jquery.min.js"></script>
 <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Core plugin JavaScript-->
 <script src="../assets/vendor/jquery-easing/jquery.easing.min.js"></script>

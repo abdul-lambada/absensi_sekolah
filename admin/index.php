@@ -35,7 +35,7 @@ try {
 <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-            <h1 class="h3 mb-0 text-gray-800">Selamat Datang, Admin</h1>
+            <span class="h3 mb-0 text-gray-800">Selamat Datang, Admin</span>
         </nav>
         <div class="container-fluid">
             <div class="row">
@@ -207,12 +207,13 @@ try {
                 </script>
 
                 <!-- Peringkat Kelas Berdasarkan Absensi -->
+                <!-- filepath: c:\xampp\htdocs\absensi_sekolah\admin\index.php -->
                 <div class="col-lg-12 mb-4">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Peringkat Kelas Berdasarkan Kehadiran</h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body table-responsive-sm">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
@@ -225,41 +226,32 @@ try {
                                 <tbody>
                                     <?php
                                     try {
-                                        // Cek apakah kolom 'status_kehadiran' ada di tabel Absensi_siswa
-                                        $stmt_check_column = $conn->query("
-                            SELECT COUNT(*) AS column_exists
-                            FROM INFORMATION_SCHEMA.COLUMNS
-                            WHERE TABLE_NAME = 'Absensi_siswa' AND COLUMN_NAME = 'status_kehadiran'
+                                        // Query untuk menghitung peringkat kelas berdasarkan kehadiran
+                                        $stmt_peringkat_kelas = $conn->query("
+                            SELECT 
+                                k.nama_kelas, 
+                                COUNT(s.id_siswa) AS total_siswa, 
+                                SUM(CASE WHEN a.status = 'Hadir' THEN 1 ELSE 0 END) AS total_hadir
+                            FROM Kelas k
+                            LEFT JOIN Siswa s ON k.id_kelas = s.id_kelas
+                            LEFT JOIN Absensi_Siswa a ON s.id_siswa = a.id_siswa
+                            GROUP BY k.id_kelas
+                            ORDER BY total_hadir DESC
                         ");
-                                        $column_exists = $stmt_check_column->fetch(PDO::FETCH_ASSOC)['column_exists'];
+                                        $peringkat_kelas = $stmt_peringkat_kelas->fetchAll(PDO::FETCH_ASSOC);
 
-                                        if ($column_exists) {
-                                            $stmt_peringkat_kelas = $conn->query("
-                                SELECT k.nama_kelas, COUNT(s.id_siswa) AS total_siswa, 
-                                       SUM(CASE WHEN a.status_kehadiran = 'Hadir' THEN 1 ELSE 0 END) AS total_hadir
-                                FROM Kelas k
-                                LEFT JOIN Siswa s ON k.id_kelas = s.id_kelas
-                                LEFT JOIN Absensi_siswa a ON s.id_siswa = a.id_siswa
-                                GROUP BY k.id_kelas
-                                ORDER BY total_hadir DESC
-                            ");
-                                            $peringkat_kelas = $stmt_peringkat_kelas->fetchAll(PDO::FETCH_ASSOC);
-
-                                            if (!empty($peringkat_kelas)) {
-                                                foreach ($peringkat_kelas as $kelas) {
-                                                    $persentase = ($kelas['total_siswa'] > 0) ? round(($kelas['total_hadir'] / $kelas['total_siswa']) * 100, 2) : 0;
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($kelas['nama_kelas']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($kelas['total_siswa']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($kelas['total_hadir']) . "</td>";
-                                                    echo "<td>" . $persentase . "%</td>";
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='4' class='text-center'>Tidak ada data absensi.</td></tr>";
+                                        if (!empty($peringkat_kelas)) {
+                                            foreach ($peringkat_kelas as $kelas) {
+                                                $persentase = ($kelas['total_siswa'] > 0) ? round(($kelas['total_hadir'] / $kelas['total_siswa']) * 100, 2) : 0;
+                                                echo "<tr>";
+                                                echo "<td>" . htmlspecialchars($kelas['nama_kelas']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($kelas['total_siswa']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($kelas['total_hadir']) . "</td>";
+                                                echo "<td>" . $persentase . "%</td>";
+                                                echo "</tr>";
                                             }
                                         } else {
-                                            echo "<tr><td colspan='4' class='text-center'>Kolom 'status_kehadiran' tidak ditemukan di tabel Absensi_siswa.</td></tr>";
+                                            echo "<tr><td colspan='4' class='text-center'>Tidak ada data absensi.</td></tr>";
                                         }
                                     } catch (\PDOException $e) {
                                         echo "<tr><td colspan='4' class='text-center'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";

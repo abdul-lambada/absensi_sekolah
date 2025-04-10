@@ -96,14 +96,14 @@ $active_page = basename($_SERVER['PHP_SELF'], '.php');
                 <i class="fas fa-fw fa-chalkboard-teacher"></i>
                 <span>Guru Menu</span>
             </a>
-            <div id="collapseGuruMenu" class="collapse <?php echo in_array($active_page, ['list_users_guru', 'log_absensi', 'absensi_siswa', 'absensi_guru', 'laporan', 'laporan_guru']) ? 'show' : ''; ?>" 
+            <div id="collapseGuruMenu" class="collapse <?php echo in_array($active_page, ['list_users_guru', 'log_absensi', 'absensi_siswa', 'absensi_guru', 'laporan_siswa', 'laporan_guru']) ? 'show' : ''; ?>" 
                  aria-labelledby="headingGuruMenu" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item <?php echo $active_page === 'list_users_guru' ? 'active' : ''; ?>" href="list_users_guru.php">Data Pengguna</a>
                     <a class="collapse-item <?php echo $active_page === 'log_absensi' ? 'active' : ''; ?>" href="log_absensi.php">Log Absensi</a>
                     <a class="collapse-item <?php echo $active_page === 'absensi_siswa' ? 'active' : ''; ?>" href="absensi_siswa.php">Absensi Siswa</a>
                     <a class="collapse-item <?php echo $active_page === 'absensi_guru' ? 'active' : ''; ?>" href="absensi_guru.php">Absensi Guru</a>
-                    <a class="collapse-item <?php echo $active_page === 'laporan' ? 'active' : ''; ?>" href="laporan.php">Laporan Absensi Siswa</a>
+                    <a class="collapse-item <?php echo $active_page === 'laporan_siswa' ? 'active' : ''; ?>" href="laporan_siswa.php">Laporan Absensi Siswa</a>
                     <a class="collapse-item <?php echo $active_page === 'laporan_guru' ? 'active' : ''; ?>" href="laporan_guru.php">Laporan Absensi Guru</a>
                 </div>
             </div>
