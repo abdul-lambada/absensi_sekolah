@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .form-control {
@@ -130,8 +131,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         @keyframes loader {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
         .alert {
@@ -141,21 +147,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 576px) {
             .card-body {
                 padding: 2rem;
             }
-            
+
             h1 {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="loader-overlay" id="loaderOverlay">
         <div class="loader">
@@ -195,6 +209,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
+    <!-- <span class="text-white text-center pb-2">&copy; <?php echo date('Y'); ?> Sistem Informasi Management Salassika. All Rights Reserved.</span> -->
+    <!-- filepath: c:\xampp\htdocs\absensi_sekolah\auth\login.php -->
+
 
     <script>
         function showLoader() {
@@ -202,9 +219,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Sembunyikan loader jika ada error
-        if(document.querySelector('.alert')) {
+        if (document.querySelector('.alert')) {
             document.getElementById('loaderOverlay').style.display = 'none';
         }
     </script>
 </body>
+
 </html>
